@@ -11,11 +11,13 @@ class Application(tk.Frame):
         self.master = master
         self.pack()
         self.create_widgets()
+        self.is_listen = False
+        self.can_recv = False
 
     def create_widgets(self):
-        self.scrolled_text_recv_msg = scrolledtext.ScrolledText(
+        self.textbox_recv_msg = scrolledtext.ScrolledText(
             self, width=30, height=5)
-        self.scrolled_text_recv_msg.grid(row=0, column=0, padx=5, pady=5)
+        self.textbox_recv_msg.grid(row=0, column=0, padx=5, pady=5)
 
         ttk.Label(self, text='IP:').grid(
             row=0, column=1, sticky='N', padx=5, pady=5)
@@ -41,43 +43,54 @@ class Application(tk.Frame):
         button_listen.grid(row=1, column=1, sticky='W', rowspan=5)
 
         button_quit = ttk.Button(
-            self, text='Quit', command=self.master.destroy)
+            self, text='Quit', command=self.quit)
         button_quit.grid(row=1, column=2, sticky='W', rowspan=5)
 
     def send(self):
-        self.server_sock.send(self.entry_chatbox.get().encode('utf-8'))
+        str_send = self.entry_chatbox.get()
+        if str_send:
+            self.server_socket.send(str_send.encode('utf-8'))
+            (my_ip, my_port) = self.server_socket.getsockname()
+            my_ip_info = f'{my_ip}:{my_port}'
+            self.textbox_recv_msg.insert(tk.END, (f'我({my_ip_info})'
+                                                  f'发送信息: {str_send}\n'))
 
     def listen(self):
         addr_info = (self.entry_ip.get(), int(self.entry_port.get()))
         # AF_INET: IPv4
         # SOCK_STREAM: TCP
         # IPPROTO_TCP: Server
-        self.sock_listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
-        self.sock_listener.bind(addr_info)
-        self.sock_listener.listen(1)
+        self.socket_listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+        self.socket_listener.bind(addr_info)
+        self.socket_listener.listen(1)
+        self.is_listen = True
 
-        self.scrolled_text_recv_msg.insert(tk.END, '等待客户端连接中...')
+        self.textbox_recv_msg.insert(tk.END, '等待客户端连接中...\n')
 
         recv_thread = threading.Thread(target=self.recv_msg)
+        recv_thread.start()
 
     def recv_msg(self):
-        (self.server_sock, self.client_addr_info) = self.sock_listener.accept()
-        self.scrolled_text_recv_msg.insert(tk.END,
-                                           (f'客户端IP信息:'
-                                            '{self.client_addr_info[0]}'
-                                            ':{self.client_addr_info[1]}'))
+        (self.server_socket,
+         self.client_addr_info) = self.socket_listener.accept()
+        (client_ip, client_port) = self.client_addr_info
+        self.can_recv = True
+        client_ip_info = f'{client_ip}:{client_port}'
+        self.textbox_recv_msg.insert(tk.END, f'客户端IP信息:{client_ip_info}\n')
 
-        str_recv = self.server_sock.recv(1024).decode('utf-8')
+        while True:
+            str_recv = self.server_socket.recv(1024).decode('utf-8')
+            if str_recv:
+                self.textbox_recv_msg.insert(tk.END, (f'客户端({client_ip_info})'
+                                                      f'发送信息: {str_recv}\n'))
 
-        self.scrolled_text_recv_msg.insert(tk.END, f'客户端发送的信息: {str_recv}')
+    def quit(self):
+        if self.is_listen:
+            self.socket_listener.close()
+        if self.can_recv:
+            self.server_socket.close()
 
-        self.server_sock.send(str_recv.encode('utf-8'))
-
-        server_sock.close()
-        sock_listener.close()
-
-    def disconnect(self):
-        self.server_socket.close()
+        self.master.destroy()
 
 
 if __name__ == '__main__':
