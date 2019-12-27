@@ -2,7 +2,7 @@
 
 ## 导航
 
-- [os/cache](https://github.com/LengSword/MyCoursesCodes/tree/master/com/lengsword/java/os/cache)
+- [os/cache](https://github.com/LengSword/MyCoursesCodes/tree/master/Java/com/lengsword/java/os/cache)
 
 > LRU/FIFO页面置换算法的题目实现
 
@@ -16,11 +16,11 @@
  */
 ```
 
-- [os/deadlock](https://github.com/LengSword/MyCoursesCodes/tree/master/com/lengsword/java/os/deadlock)
+- [os/deadlock](https://github.com/LengSword/MyCoursesCodes/tree/master/Java/com/lengsword/java/os/deadlock)
 
 > 死锁避免 银行家算法模拟
 
-- [os/dispatch](https://github.com/LengSword/MyCoursesCodes/tree/master/com/lengsword/java/os/dispatch)
+- [os/dispatch](https://github.com/LengSword/MyCoursesCodes/tree/master/Java/com/lengsword/java/os/dispatch)
 
 > 进程调度模拟
 
@@ -28,7 +28,7 @@
 
 暂未完善对响应比的计算,估计仍有许多bug,但是可以使用
 
-- [os/state](https://github.com/LengSword/MyCoursesCodes/tree/master/com/lengsword/java/os/state)
+- [os/state](https://github.com/LengSword/MyCoursesCodes/tree/master/Java/com/lengsword/java/os/state)
 
 > 模拟进程状态转换
 
